@@ -24,6 +24,8 @@ export interface Store {
   savePost(post: PostRecord): Promise<void>;
   getPost(id: string): Promise<PostRecord | null>;
   listPosts(limit?: number): Promise<PostRecord[]>;
+  /** 기록 삭제. 샘플 데이터를 지울 때만 씁니다. 관리자 화면에는 노출하지 않습니다. */
+  deletePost(id: string): Promise<void>;
   saveResearch(research: ResearchResult): Promise<void>;
   getResearch(dateKey: string): Promise<ResearchResult | null>;
   saveLog(log: RunLog): Promise<void>;
@@ -112,11 +114,17 @@ function createBlobStore(token: string): Store {
     return values.filter((v): v is T => v !== null);
   }
 
+  async function remove(pathname: string): Promise<void> {
+    const { del } = await import('@vercel/blob');
+    await del(pathname, { token });
+  }
+
   return {
     kind: 'blob',
     savePost: (post) => writeJson(postPath(post.id), post),
     getPost: (id) => readJson<PostRecord>(postPath(id)),
     listPosts: (limit = 60) => readManyByPrefix<PostRecord>(POSTS_PREFIX, limit),
+    deletePost: (id) => remove(postPath(id)),
     saveResearch: (research) => writeJson(`${RESEARCH_PREFIX}${research.dateKey}.json`, research),
     getResearch: (dateKey) => readJson<ResearchResult>(`${RESEARCH_PREFIX}${dateKey}.json`),
     saveLog: (log) => writeJson(`${LOGS_PREFIX}${log.id}.json`, log),
@@ -173,11 +181,22 @@ function createLocalStore(): Store {
     }
   }
 
+  async function remove(pathname: string): Promise<void> {
+    try {
+      const f = await fs();
+      const path = await import('node:path');
+      await f.unlink(path.join(root, pathname));
+    } catch {
+      // 없는 파일을 지우는 것은 오류로 보지 않습니다.
+    }
+  }
+
   return {
     kind: 'local',
     savePost: (post) => writeJson(postPath(post.id), post),
     getPost: (id) => readJson<PostRecord>(postPath(id)),
     listPosts: (limit = 60) => readManyByPrefix<PostRecord>(POSTS_PREFIX, limit),
+    deletePost: (id) => remove(postPath(id)),
     saveResearch: (research) => writeJson(`${RESEARCH_PREFIX}${research.dateKey}.json`, research),
     getResearch: (dateKey) => readJson<ResearchResult>(`${RESEARCH_PREFIX}${dateKey}.json`),
     saveLog: (log) => writeJson(`${LOGS_PREFIX}${log.id}.json`, log),

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { loadConfig, tokenDaysLeft } from '@/lib/config';
 import { SLOT_LABEL, isSensitive } from '@/lib/categories';
 import { DEFAULT_SETTINGS, getStore } from '@/lib/store';
@@ -50,6 +51,9 @@ export default async function AdminPage() {
           </p>
         </div>
         <div className="row">
+          <Link className="btn" href="/admin/setup">
+            설정 도우미
+          </Link>
           <a className="btn" href="/api/health" target="_blank" rel="noreferrer">
             연결 점검
           </a>
@@ -61,9 +65,21 @@ export default async function AdminPage() {
 
       {check.missing.length > 0 && (
         <div className="notice error">
-          환경 변수가 빠져 있습니다: <strong>{check.missing.join(', ')}</strong>
+          아직 설정이 끝나지 않았습니다. 없는 값: <strong>{check.missing.join(', ')}</strong>
           <br />
-          Vercel 프로젝트 Settings → Environment Variables 에서 채운 뒤 다시 배포하세요.
+          무엇을 어디서 눌러야 하는지 화면으로 안내해 드립니다.
+          <div style={{ marginTop: 8 }}>
+            <Link className="btn" href="/admin/setup">
+              설정 도우미 열기
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {store.kind === 'local' && process.env.VERCEL && (
+        <div className="notice">
+          기록을 임시 저장하고 있습니다. Vercel에서는 배포할 때마다 사라지므로 Blob 스토어를 만들어
+          주세요. <Link href="/admin/setup">설정 도우미 3단계</Link>에 방법이 있습니다.
         </div>
       )}
 

@@ -5,6 +5,10 @@
 Claude가 매일 최신 부동산 자료를 조사하고, Threads에 맞는 글을 쓰고, 사실관계와 중복을 검사한 뒤
 하루 3회(한국시간 09:00 / 13:00 / 19:00) 자동으로 게시합니다.
 
+> **처음 설정하신다면 [설정하기.md](설정하기.md) 를 보세요.** 버튼 이름만 따라가면 되는 4단계 문서입니다.
+> 이 README는 구조와 규칙을 설명하는 개발자용 문서입니다.
+> 배포한 뒤에는 `내주소/admin/setup` 화면이 지금 무엇이 남았는지 ✅/❌ 로 알려줍니다.
+
 ```
 최신 부동산 자료 조사 (웹 검색)
    ↓
@@ -60,11 +64,13 @@ src/lib/
   auth.ts        관리자 로그인
 src/app/
   admin/         관리자 화면
+  admin/setup/   설정 도우미 (남은 설정을 ✅/❌ 로 안내)
   login/         로그인 화면
   api/           generate · posts · publish · cancel · settings · health · cron/run
 scripts/
   run-slot.ts      자동 실행 진입점 (GitHub Actions와 로컬 공용)
   dedupe-check.ts  중복 검사 동작 확인
+  seed-sample.ts   화면 확인용 샘플 글 3건 생성/삭제 (API 키 불필요)
 .github/workflows/threads-auto.yml   하루 3회 실행
 ```
 
@@ -89,6 +95,10 @@ scripts/
 ---
 
 ## 3. 설치와 배포 순서
+
+> 아래는 전체 절차 요약입니다. 처음이라면 [설정하기.md](설정하기.md) 가 더 쉽습니다.
+> **GitHub Actions 예약 실행은 저장소 기본 브랜치에서만 동작합니다.** 코드를 기본 브랜치로 합쳐야
+> 하루 3회 자동 실행이 켜집니다.
 
 ### ① Threads 토큰 발급 (직접)
 
@@ -141,6 +151,10 @@ npx tsx scripts/run-slot.ts --slot=morning --dry-run
 
 # 중복 검사 동작만 확인 (API 키 불필요)
 npx tsx scripts/dedupe-check.ts
+
+# 화면 확인용 샘플 글 3건 넣기 / 지우기 (API 키 불필요)
+npx tsx scripts/seed-sample.ts
+npx tsx scripts/seed-sample.ts --clear
 
 # 관리자 화면 (http://localhost:3000/admin)
 npm run dev
