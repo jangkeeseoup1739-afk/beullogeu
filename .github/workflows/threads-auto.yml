@@ -96,8 +96,17 @@ jobs:
           set -o pipefail
           npx tsx scripts/run-slot.ts $ARGS 2>&1 | tee run-output.txt
 
-      # 실행 기록을 저장소에 남깁니다.
-      # 1) 무료 백업 2) 공개 저장소는 60일간 커밋이 없으면 스케줄이 자동 중지되므로 그 방지용
+      # 실행 기록과 게시 기록을 저장소에 남깁니다.
+      #
+      # 게시 기록(data/posts)을 커밋하는 이유:
+      #   Vercel Blob 을 연결하지 않으면 저장소 어댑터가 러너의 data/ 폴더에 씁니다.
+      #   그런데 러너는 실행이 끝나면 사라지므로, 다음 실행이 과거 기록을 못 읽어
+      #   중복 검사와 카테고리 비율 순환이 동작하지 않습니다.
+      #   저장소에 커밋해 두면 다음 실행의 checkout 이 그대로 받아옵니다.
+      #   (Blob 을 연결하면 그쪽이 우선이고 data/ 는 더 이상 쓰이지 않습니다)
+      #
+      # 실행 로그(logs/)를 커밋하는 이유:
+      #   무료 백업이자, 공개 저장소에서 60일간 커밋이 없으면 스케줄이 자동 중지되는 것의 방지용
       - name: 실행 기록 커밋
         if: always()
         run: |
@@ -110,6 +119,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f "logs/$MONTH.log"
+          # 게시 기록은 있을 때만 추가합니다 (Blob 을 쓰는 경우 data/ 가 생기지 않습니다)
+          [ -d data/posts ] && git add -f data/posts || true
+          [ -f data/settings.json ] && git add -f data/settings.json || true
           if git diff --cached --quiet; then
             echo "기록할 변경이 없습니다."
           else
