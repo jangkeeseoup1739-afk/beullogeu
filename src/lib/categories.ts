@@ -55,6 +55,24 @@ export const SLOT_CANDIDATES: Record<Slot, Category[]> = {
   evening: ['부동산상식', '지역정보', '제이원플렉스', '상가', '지식산업센터', '오피스텔', '대출', '세금'],
 };
 
+/**
+ * 이번 실행에서 쓸 후보 카테고리.
+ *
+ * 하루 3회로 돌리면 슬롯별 역할대로([9]) 후보가 나뉩니다.
+ * 하루 1회로 줄이면 아침 후보(뉴스·정책)만 계속 나오게 되므로,
+ * 이때는 모든 카테고리를 후보로 놓고 목표 비율([2])에 따라 돌아가게 합니다.
+ */
+export function candidatesFor(slot: Slot, postsPerDay: number): Category[] {
+  if (postsPerDay <= 1) {
+    const merged = new Set<Category>();
+    for (const list of Object.values(SLOT_CANDIDATES)) {
+      for (const category of list) merged.add(category);
+    }
+    return [...merged];
+  }
+  return SLOT_CANDIDATES[slot];
+}
+
 export const SLOT_LABEL: Record<Slot, string> = {
   morning: '09:00 뉴스·정책',
   noon: '13:00 청약·분양·시장',

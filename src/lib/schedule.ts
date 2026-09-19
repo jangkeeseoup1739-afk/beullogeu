@@ -4,15 +4,10 @@
  * 매일 같은 카테고리가 반복되지 않도록, 최근 기록을 보고 목표 비율보다 부족한 묶음을 먼저 고릅니다.
  * 중요한 뉴스(중요도 4 이상)가 있으면 그 카테고리의 우선순위를 올립니다.
  */
-import {
-  FALLBACK_CATEGORY,
-  RATIO_GROUPS,
-  SLOT_CANDIDATES,
-  groupOf,
-} from './categories';
+import { FALLBACK_CATEGORY, RATIO_GROUPS, groupOf } from './categories';
 import { MIN_DAYS_BETWEEN_POSTS } from './jwonplex';
 import { dateKeyKst, daysBetween } from './time';
-import type { Category, PostRecord, ResearchResult, Slot } from './types';
+import type { Category, PostRecord, ResearchResult } from './types';
 
 /** 비율 계산에 쓰는 최근 게시물 수 */
 export const RATIO_WINDOW = 40;
@@ -55,12 +50,11 @@ function daysSinceCategory(posts: PostRecord[], category: Category, today: strin
  * 조사 결과가 없으면 부동산상식으로 대체합니다. ([15])
  */
 export function selectCategory(
-  slot: Slot,
+  candidates: Category[],
   posts: PostRecord[],
   research: ResearchResult,
   today = dateKeyKst(),
 ): CategoryChoice {
-  const candidates = [...SLOT_CANDIDATES[slot]];
   const shares = groupShares(posts);
   const scores: CategoryChoice['scores'] = [];
 

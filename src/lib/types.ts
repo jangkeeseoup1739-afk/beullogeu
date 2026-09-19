@@ -120,6 +120,8 @@ export interface ResearchItem {
   meaning: string;
   category: Category;
   region?: string;
+  /** 자료가 발표·보도된 날짜 (YYYY-MM-DD). 확인되지 않으면 없음 */
+  publishedAt?: string;
   /** 1(참고) ~ 5(당일 최우선) */
   importance: number;
   sources: SourceRef[];

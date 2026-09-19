@@ -30,7 +30,16 @@ const ResearchItemSchema = z.object({
   meaning: z.string().describe('부동산 시장에서 왜 중요한지, 어떤 의미가 있는지'),
   category: z.enum(ALL_CATEGORIES as [Category, ...Category[]]),
   region: z.string().nullable().describe('관련 지역. 전국 단위면 "전국"'),
-  importance: z.number().int().min(1).max(5).describe('1=참고, 5=당일 최우선'),
+  importance: z
+    .number()
+    .int()
+    .min(1)
+    .max(5)
+    .describe('1=참고, 5=당일 최우선. 오래된 자료일수록 낮게 매긴다'),
+  publishedAt: z
+    .string()
+    .nullable()
+    .describe('자료가 발표·보도된 날짜 (YYYY-MM-DD). 확인되지 않으면 null'),
   verifiedFacts: z
     .array(z.string())
     .describe('조사 자료에서 실제로 확인된 숫자·일정·제도 내용만. 확인 안 된 내용은 넣지 않는다'),
@@ -46,6 +55,10 @@ const RESEARCH_SYSTEM = `당신은 대한민국 부동산 시장을 매일 조�
 
 조사 원칙:
 - 기사 제목만 보고 판단하지 않는다. 본문과 공식 자료의 내용을 확인한다.
+- 최신성이 가장 중요하다. 오늘부터 최근 3일 이내에 나온 자료를 우선 확인하고,
+  그 기간에 자료가 없으면 최근 2주 이내까지만 범위를 넓힌다.
+  몇 달 전 제도나 이미 시행 중인 내용을 '오늘의 소식'처럼 다루지 않는다.
+  오래된 자료를 쓸 때는 언제 발표된 것인지 날짜를 반드시 함께 적는다.
 - 다음 공식 출처를 먼저 확인한다: 국토교통부, 한국부동산원, 청약홈, LH, 주택도시보증공사,
   한국주택금융공사, 통계청, 기획재정부, 금융위원회, 금융감독원, 한국은행, 각 지방자치단체.
   그다음 주요 언론사의 부동산 보도를 확인한다.
@@ -57,7 +70,8 @@ const RESEARCH_SYSTEM = `당신은 대한민국 부동산 시장을 매일 조�
 function buildResearchPrompt(dateKey: string): string {
   return `오늘은 ${dateKey}(한국시간)입니다. 대한민국 부동산 시장의 최신 정보를 조사해 주세요.
 
-다음 영역을 모두 확인하고, 실제로 최근(가능하면 1~3일 이내) 확인된 내용만 정리하세요.
+먼저 "오늘 또는 어제 나온 부동산 뉴스"를 검색해 최신 소식부터 확보한 다음,
+아래 영역을 확인하세요. 최근 3일 이내 자료를 우선하고, 없으면 최근 2주 이내까지만 봅니다.
 1. 부동산 시장 주요 뉴스 (아파트 가격, 전세·월세, 매매시장, 거래량, 미분양, 입주물량, 주택 공급)
 2. 정부 발표와 정책 변화 (국토교통부, 주택·공급 정책, 규제지역, 임대차 제도, 재건축·재개발)
 3. 청약·분양 일정 (청약홈, LH, 신규 분양, 특별공급·일반공급, 무순위 청약, 당첨자 발표, 분양가)
@@ -152,7 +166,8 @@ ${researchText}
 ${sourceList}
 
 위 조사 자료를 6~12개 항목으로 정리하세요. 중요도가 높은 것부터 나열하세요.
-같은 사안을 여러 항목으로 쪼개지 마세요.`,
+같은 사안을 여러 항목으로 쪼개지 마세요.
+발표·보도 날짜가 확인되면 publishedAt 에 적고, 오래된 자료는 중요도를 낮게 매기세요.`,
       },
     ],
   });
@@ -170,6 +185,7 @@ ${sourceList}
     meaning: item.meaning,
     category: item.category,
     region: item.region ?? undefined,
+    publishedAt: item.publishedAt ?? undefined,
     importance: item.importance,
     verifiedFacts: item.verifiedFacts,
     sources: item.sourceUrls

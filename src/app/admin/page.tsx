@@ -40,6 +40,13 @@ export default async function AdminPage() {
     .filter((post) => post.dateKey.startsWith(monthPrefix))
     .reduce((sum, post) => sum + post.usage.estimatedUsd, 0);
   const daysLeft = tokenDaysLeft(check.config.threadsTokenIssuedAt);
+  const perDay = check.config.postsPerDay;
+  const scheduleText =
+    perDay === 1
+      ? '하루 1회 09:00 자동 실행'
+      : perDay === 2
+        ? '하루 2회 09:00 / 13:00 자동 실행'
+        : '하루 3회 09:00 / 13:00 / 19:00 자동 실행';
 
   return (
     <div className="wrap">
@@ -47,7 +54,7 @@ export default async function AdminPage() {
         <div>
           <h1>부동산 Threads 자동화</h1>
           <p className="muted" style={{ margin: 0 }}>
-            오늘 {today} (한국시간) · 하루 3회 09:00 / 13:00 / 19:00 자동 실행
+            오늘 {today} (한국시간) · {scheduleText}
           </p>
         </div>
         <div className="row">
@@ -95,7 +102,9 @@ export default async function AdminPage() {
       <div className="grid">
         <div className="stat">
           <div className="label">오늘 게시 완료</div>
-          <div className="value">{publishedToday} / 3</div>
+          <div className="value">
+            {publishedToday} / {perDay}
+          </div>
         </div>
         <div className="stat">
           <div className="label">승인 대기</div>
@@ -236,7 +245,7 @@ export default async function AdminPage() {
         </p>
         <p>· &quot;게시 중지&quot;는 아직 올라가지 않은 글의 게시를 취소합니다.</p>
         <p style={{ marginBottom: 0 }}>
-          · 자동화를 끄면 09:00 / 13:00 / 19:00 자동 실행이 글을 만들지 않고 건너뜁니다.
+          · 자동화를 끄면 예약된 자동 실행이 글을 만들지 않고 건너뜁니다.
         </p>
       </div>
     </div>

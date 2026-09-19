@@ -16,6 +16,8 @@ export interface AppConfig {
   appBaseUrl: string;
   threadsTokenIssuedAt: string;
   autoPublish: boolean;
+  /** 하루 게시 횟수. 1이면 모든 카테고리를 한 슬롯에서 돌아가며 씁니다. */
+  postsPerDay: number;
 }
 
 export interface ConfigCheck {
@@ -34,6 +36,15 @@ function env(name: string): string {
   return (process.env[name] ?? '').trim();
 }
 
+/** 1~3 사이의 값만 허용하고, 잘못된 값이면 기본값 1을 씁니다. */
+function parsePostsPerDay(raw: string): number {
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return 1;
+  if (value < 1) return 1;
+  if (value > 3) return 3;
+  return Math.round(value);
+}
+
 export function loadConfig(): ConfigCheck {
   const config: AppConfig = {
     anthropicApiKey: env('ANTHROPIC_API_KEY'),
@@ -46,6 +57,7 @@ export function loadConfig(): ConfigCheck {
     threadsTokenIssuedAt: env('THREADS_TOKEN_ISSUED_AT'),
     // 기본값은 true. 'false' 라고 적었을 때만 자동 게시를 끕니다.
     autoPublish: env('AUTO_PUBLISH').toLowerCase() !== 'false',
+    postsPerDay: parsePostsPerDay(env('POSTS_PER_DAY')),
   };
 
   const missing: string[] = [];

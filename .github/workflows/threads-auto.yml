@@ -1,19 +1,19 @@
 # 부동산 Threads 자동 게시
 #
-# 하루 3회 한국시간 09:00 / 13:00 / 19:00 에 실행됩니다.
+# 하루 1회, 한국시간 09:00 에 실행됩니다.
 # GitHub Actions 는 UTC 기준이라 한국시간에서 9시간을 뺀 값을 씁니다. (한국은 서머타임이 없습니다)
 #   09:00 KST = 00:00 UTC
-#   13:00 KST = 04:00 UTC
-#   19:00 KST = 10:00 UTC
+#
+# 하루 3회로 늘리려면 아래 cron 두 줄의 주석(#)을 풀고 POSTS_PER_DAY 를 3 으로 바꾸세요.
 #
 # 화면에서 직접 실행하려면: 저장소 → Actions → 이 워크플로 → "Run workflow"
 name: 부동산 Threads 자동 게시
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 09:00 KST — 뉴스·정책
-    - cron: '0 4 * * *' # 13:00 KST — 청약·분양·시장
-    - cron: '0 10 * * *' # 19:00 KST — 상식·지역·수익형
+    - cron: '0 0 * * *' # 09:00 KST — 하루 1회 (전 카테고리를 비율대로 순환)
+    # - cron: '0 4 * * *' # 13:00 KST — 청약·분양·시장 (하루 3회로 늘릴 때 사용)
+    # - cron: '0 10 * * *' # 19:00 KST — 상식·지역·수익형 (하루 3회로 늘릴 때 사용)
   workflow_dispatch:
     inputs:
       slot:
@@ -81,6 +81,8 @@ jobs:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           AUTO_PUBLISH: ${{ vars.AUTO_PUBLISH || 'true' }}
+          # 하루 게시 횟수. 1이면 모든 카테고리를 한 번의 실행에서 비율대로 돌아가며 씁니다.
+          POSTS_PER_DAY: ${{ vars.POSTS_PER_DAY || '1' }}
         run: |
           ARGS="--slot=${{ steps.slot.outputs.slot }} --trigger=cron"
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
