@@ -1,0 +1,123 @@
+# 부동산 Threads 자동 게시
+#
+# 하루 3회 한국시간 09:00 / 13:00 / 19:00 에 실행됩니다.
+# GitHub Actions 는 UTC 기준이라 한국시간에서 9시간을 뺀 값을 씁니다. (한국은 서머타임이 없습니다)
+#   09:00 KST = 00:00 UTC
+#   13:00 KST = 04:00 UTC
+#   19:00 KST = 10:00 UTC
+#
+# 화면에서 직접 실행하려면: 저장소 → Actions → 이 워크플로 → "Run workflow"
+name: 부동산 Threads 자동 게시
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 09:00 KST — 뉴스·정책
+    - cron: '0 4 * * *' # 13:00 KST — 청약·분양·시장
+    - cron: '0 10 * * *' # 19:00 KST — 상식·지역·수익형
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 실행할 시간대
+        type: choice
+        required: true
+        default: morning
+        options:
+          - morning
+          - noon
+          - evening
+      dry_run:
+        description: 게시하지 않고 미리보기만 (true/false)
+        type: boolean
+        required: false
+        default: false
+      category:
+        description: '카테고리 직접 지정 (비워두면 자동 선택)'
+        type: string
+        required: false
+        default: ''
+
+# 같은 시간에 두 번 실행되어 중복 게시되는 것을 막습니다.
+concurrency:
+  group: threads-auto
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 실행할 시간대 결정
+        id: slot
+        run: |
+          case "${{ github.event.schedule }}" in
+            "0 0 * * *")  SLOT=morning ;;
+            "0 4 * * *")  SLOT=noon ;;
+            "0 10 * * *") SLOT=evening ;;
+            *)            SLOT="${{ github.event.inputs.slot || 'morning' }}" ;;
+          esac
+          echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+          echo "이번 실행 시간대: $SLOT"
+
+      - name: 콘텐츠 생성 및 게시
+        id: pipeline
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          AUTO_PUBLISH: ${{ vars.AUTO_PUBLISH || 'true' }}
+        run: |
+          ARGS="--slot=${{ steps.slot.outputs.slot }} --trigger=cron"
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          if [ -n "${{ github.event.inputs.category }}" ]; then
+            ARGS="$ARGS --category=${{ github.event.inputs.category }}"
+          fi
+          echo "실행: npx tsx scripts/run-slot.ts $ARGS"
+          npx tsx scripts/run-slot.ts $ARGS 2>&1 | tee run-output.txt
+
+      # 실행 기록을 저장소에 남깁니다.
+      # 1) 무료 백업 2) 공개 저장소는 60일간 커밋이 없으면 스케줄이 자동 중지되므로 그 방지용
+      - name: 실행 기록 커밋
+        if: always()
+        run: |
+          mkdir -p logs
+          MONTH=$(TZ=Asia/Seoul date +%Y-%m)
+          STAMP=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')
+          RESULT=$(grep -m1 '^결과: ' run-output.txt 2>/dev/null || echo "결과: 출력 없음")
+          USAGE=$(grep -m1 '^사용량: ' run-output.txt 2>/dev/null || echo "사용량: -")
+          printf '%s | %s | %s | %s\n' "$STAMP" "${{ steps.slot.outputs.slot }}" "$RESULT" "$USAGE" >> "logs/$MONTH.log"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "logs/$MONTH.log"
+          if git diff --cached --quiet; then
+            echo "기록할 변경이 없습니다."
+          else
+            git commit -m "chore: 실행 기록 $STAMP (${{ steps.slot.outputs.slot }}) [skip ci]"
+            git push
+          fi
+
+      - name: 실행 결과 확인
+        if: always()
+        run: |
+          echo "### 실행 결과" >> "$GITHUB_STEP_SUMMARY"
+          tail -n 30 run-output.txt >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          if [ "${{ steps.pipeline.outcome }}" != "success" ]; then
+            echo "파이프라인이 게시까지 도달하지 못했습니다. 위 로그와 관리자 화면을 확인하세요."
+          fi
