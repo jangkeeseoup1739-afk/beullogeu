@@ -47,7 +47,7 @@ export default async function SetupPage() {
         ? '3단계 — Vercel에서 Blob 스토어를 만들어 주세요.'
         : !threadsReady
           ? '4단계 — Threads 토큰을 발급해 넣으면 자동 게시까지 완성됩니다. (지금은 승인 대기로만 쌓입니다)'
-          : '모두 완료됐습니다. 09:00 / 13:00 / 19:00 에 자동으로 글이 올라갑니다.';
+          : '모두 완료됐습니다. 매일 정해진 시간에 자동으로 글이 올라갑니다.';
 
   return (
     <div className="wrap">
@@ -84,7 +84,7 @@ export default async function SetupPage() {
       >
         <p>
           GitHub Actions의 <b>예약 실행은 저장소의 기본 브랜치에서만 동작합니다.</b> 그래서 코드를
-          기본 브랜치(<code>{DEFAULT_BRANCH}</code>)에 합쳐야 하루 3회 자동 실행이 켜집니다.
+          기본 브랜치(<code>{DEFAULT_BRANCH}</code>)에 합쳐야 자동 실행이 켜집니다.
         </p>
         <ol>
           <li>

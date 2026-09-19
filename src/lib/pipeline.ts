@@ -7,7 +7,7 @@
  *   각 단계는 실패해도 예외를 위로 던지지 않습니다. 실패를 기록하고 가능한 만큼 진행한 뒤,
  *   게시할 수 없으면 보류(held)나 실패(failed) 상태로 저장합니다. 다음 실행은 항상 정상 진행됩니다.
  */
-import { SLOT_CANDIDATES, isSensitive } from './categories';
+import { candidatesFor, isSensitive } from './categories';
 import { loadConfig } from './config';
 import { checkDuplicate } from './dedupe';
 import { RunLogger, errorMessage } from './logger';
@@ -82,6 +82,9 @@ export async function runSlot(options: RunOptions): Promise<RunResult> {
     logger.stage('기존 기록 읽기', false, errorMessage(error));
   }
 
+  // 이번 실행에서 쓸 후보 카테고리 (하루 1회면 전 카테고리를 대상으로 합니다)
+  const candidates = candidatesFor(options.slot, config.postsPerDay);
+
   // 1) 조사
   let research: ResearchResult = {
     dateKey: today,
@@ -92,7 +95,7 @@ export async function runSlot(options: RunOptions): Promise<RunResult> {
     usage: emptyUsage(),
   };
   try {
-    research = await getResearchForSlot(options.slot, SLOT_CANDIDATES[options.slot], today);
+    research = await getResearchForSlot(options.slot, candidates, today);
     logger.addUsage(research.usage);
     logger.stage(
       '뉴스·자료 조사',
@@ -104,7 +107,7 @@ export async function runSlot(options: RunOptions): Promise<RunResult> {
   }
 
   // 2) 카테고리 선택
-  const choice = selectCategory(options.slot, recentPosts, research, today);
+  const choice = selectCategory(candidates, recentPosts, research, today);
   let category: Category = options.forceCategory ?? choice.category;
   logger.stage(
     '카테고리 선택',

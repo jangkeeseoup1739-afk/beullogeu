@@ -65,6 +65,8 @@ const WRITER_SYSTEM = `당신은 대한민국 부동산 정보를 다루는 Thre
 
 [사실관계]
 - 숫자, 일정, 제도 내용은 조사 자료에서 확인된 것만 씁니다. 확인되지 않은 것은 아예 쓰지 않습니다.
+- 오래전에 발표된 내용을 오늘 일어난 일처럼 쓰지 않습니다. 발표일이 오래됐으면
+  "지난해 10월 발표된" 처럼 시점을 분명히 밝히거나, 더 최근 소재를 고릅니다.
 - 통계와 가격은 기준 시점을 함께 밝힙니다. (예: 8월 기준)
 - 추측이 필요한 부분은 "확인이 필요합니다", "공고를 확인해야 합니다" 처럼 확인을 권하는 문장으로 처리합니다.
 
@@ -117,6 +119,7 @@ function formatResearchItems(items: ResearchItem[]): string {
         : '    · (확인된 숫자 없음)';
       const sources = item.sources.map((s) => `    · ${s.publisher} ${s.url}`).join('\n');
       return `${index + 1}. [${item.category}${item.region ? `/${item.region}` : ''}] ${item.headline}
+  발표일: ${item.publishedAt ?? '확인 안 됨'}
   요약: ${item.summary}
   의미: ${item.meaning}
   중요도: ${item.importance}/5
