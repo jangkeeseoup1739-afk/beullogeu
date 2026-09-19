@@ -90,6 +90,8 @@ jobs:
             ARGS="$ARGS --category=${{ github.event.inputs.category }}"
           fi
           echo "실행: npx tsx scripts/run-slot.ts $ARGS"
+          # tee 때문에 스크립트의 실패가 가려지지 않게 합니다.
+          set -o pipefail
           npx tsx scripts/run-slot.ts $ARGS 2>&1 | tee run-output.txt
 
       # 실행 기록을 저장소에 남깁니다.
@@ -105,7 +107,7 @@ jobs:
           printf '%s | %s | %s | %s\n' "$STAMP" "${{ steps.slot.outputs.slot }}" "$RESULT" "$USAGE" >> "logs/$MONTH.log"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "logs/$MONTH.log"
+          git add -f "logs/$MONTH.log"
           if git diff --cached --quiet; then
             echo "기록할 변경이 없습니다."
           else
