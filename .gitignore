@@ -1,15 +1,20 @@
-# 네이버 로그인 세션 — 절대 커밋하지 마세요.
-# 이 파일이 유출되면 비밀번호 없이도 계정에 접근할 수 있습니다.
-.auth/
-
-# 환경 변수
+# 환경 변수 — 절대 커밋하지 마세요. API 키와 액세스 토큰이 들어 있습니다.
 .env
 .env.local
+.env.*.local
 
 # 의존성 / 빌드 산출물
 node_modules/
+.next/
+out/
 dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# 로컬 저장소 (BLOB_READ_WRITE_TOKEN 없이 실행할 때 쓰는 파일 저장소)
+data/
 
 # 실행 산출물
-screenshots/
 *.log
+.vercel
+.DS_Store

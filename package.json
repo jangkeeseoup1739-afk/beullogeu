@@ -1,0 +1,32 @@
+{
+  "name": "realestate-threads-auto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "대한민국 부동산 전문 Threads 채널 자동화 — 최신 정보 조사, 콘텐츠 생성, 검증, 자동 게시",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "run:slot": "tsx scripts/run-slot.ts",
+    "check:dedupe": "tsx scripts/dedupe-check.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
+    "@vercel/blob": "^1.0.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
