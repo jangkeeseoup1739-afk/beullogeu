@@ -32,7 +32,7 @@ Threads API 게시 (민감 카테고리는 승인 후 게시)
 | --- | --- | --- |
 | 자동 실행(시계) + 파이프라인 | **GitHub Actions** | 매일 정해진 시간에 실행. 조사·작성·검증·게시를 모두 처리합니다 |
 | 관리자 화면 + 버튼 동작 | **Vercel (Next.js)** | 기록 확인, 승인 게시, 즉시 게시, 자동화 ON/OFF |
-| 데이터 저장 | **Vercel Blob** | 게시물 1건 = JSON 파일 1개. 토큰은 저장하지 않습니다 |
+| 데이터 저장 | **저장소 또는 Vercel Blob** | 게시물 1건 = JSON 파일 1개. 토큰은 저장하지 않습니다 |
 
 > **왜 Vercel Cron이 아닌가요?** Vercel 무료(Hobby) 플랜의 Cron은 **하루 1회, 프로젝트당 2개**까지만
 > 허용되고 실행 시각도 정확하지 않습니다. 나중에 횟수를 늘릴 여지까지 생각하면 GitHub Actions가 확실합니다.
@@ -52,6 +52,7 @@ src/lib/
   sources.ts     신뢰 출처 도메인 목록, 출처 기관 이름 추정
   jwonplex.ts    제이원플렉스 확정 사실 화이트리스트
   store.ts       저장소 (Vercel Blob / 로컬 파일 자동 전환)
+                 — Blob 토큰이 없으면 data/ 에 쓰고, 워크플로가 이를 저장소에 커밋해 보존합니다
   logger.ts      실행 로그
   usage.ts       토큰 사용량과 비용 추정
   claude.ts      Anthropic API 공통 처리 (웹 검색, pause_turn 재개)
@@ -162,7 +163,13 @@ npx tsx scripts/seed-sample.ts --clear
 npm run dev
 ```
 
-`BLOB_READ_WRITE_TOKEN` 이 없으면 `data/` 폴더에 파일로 저장합니다. (`.gitignore` 처리됨)
+`BLOB_READ_WRITE_TOKEN` 이 없으면 `data/` 폴더에 파일로 저장합니다. (로컬에서는 `.gitignore` 처리됨)
+
+**기록 보존 방식** — Vercel Blob 을 연결하지 않아도 기록이 사라지지 않습니다.
+GitHub Actions 러너는 실행이 끝나면 사라지기 때문에, 워크플로가 매 실행마다
+`data/posts/` 와 `logs/` 를 저장소에 커밋합니다. 다음 실행은 checkout 으로 그 기록을 그대로
+받아 중복 검사와 카테고리 비율 순환에 사용합니다.
+Blob 을 연결하면 그쪽이 우선이 되고 `data/` 는 더 이상 쓰이지 않습니다.
 
 ---
 
