@@ -1,0 +1,43 @@
+{
+  "id": "2026-09-20-morning-47c9s9",
+  "createdAt": "2026-09-20T00:44:48.775Z",
+  "dateKey": "2026-09-20",
+  "slot": "morning",
+  "category": "부동산상식",
+  "text": "등기부등본을 떼어 봤는데 \"깨끗하다\"는 말만 듣고 계약하는 경우가 생각보다 많습니다. 등기부는 표제부, 갑구, 을구 세 부분으로 나뉘는데 각각 확인해야 할 내용이 다릅니다. 표제부에서는 계약하려는 호수와 면적이 실제 문서와 일치하는지, 갑구에서는 소유자가 계약 상대방과 같은 사람인지, 가압류나 경매개시결정 같은 표시가 있는지 봅니다. 을구에서는 근저당권 채권최고액을 확인하는데, 이 금액과 내 보증금을 더한 값이 시세에 비해 어느 정도인지 따져 보는 것이 핵심입니다. 등기부는 계약할 때 한 번 보고 끝내지 말고 잔금 치르는 날과 전입신고 다음 날까지 다시 확인하는 편이 안전합니다. 그 사이에 새로운 권리가 설정될 수 있기 때문입니다. 확정일자와 전입신고의 효력이 언제부터 생기는지도 함께 알아 두면 판단이 쉬워집니다.",
+  "hook": "등기부등본을 떼어 봤는데 \"깨끗하다\"는 말만 듣고 계약하는 경우가 생각보다 많습니다.",
+  "topicKey": "부동산상식|전국|등기부등본 확인법",
+  "keywords": [
+    "등기부등본",
+    "근저당권",
+    "채권최고액",
+    "전입신고",
+    "확정일자"
+  ],
+  "sources": [],
+  "status": "pending_approval",
+  "needsApproval": false,
+  "verification": {
+    "passed": true,
+    "ruleIssues": [],
+    "unsupportedSentences": [],
+    "politicalIssues": [],
+    "confidence": 0.9,
+    "notes": "등기부 구성과 확인 절차에 대한 일반적 설명만 있고 구체적 수치·일정·세율 등 조사 자료가 필요한 내용은 없습니다."
+  },
+  "dedupe": {
+    "isDuplicate": false,
+    "comparedCount": 0,
+    "maxSimilarity": 0,
+    "attempts": 0
+  },
+  "usage": {
+    "inputTokens": 2093,
+    "outputTokens": 689,
+    "cacheReadTokens": 0,
+    "cacheWriteTokens": 2891,
+    "webSearchCount": 0,
+    "estimatedUsd": 0.0458
+  },
+  "model": "claude-opus-5"
+}
