@@ -53,6 +53,12 @@ export interface ToolRunOutcome {
  * 웹 검색 툴을 쓰는 호출.
  * 검색이 오래 걸리면 stop_reason 이 'pause_turn' 으로 끊길 수 있으므로
  * 끊긴 지점부터 이어서 호출합니다. (최대 4회)
+ *
+ * 스트리밍으로 호출하는 이유:
+ *   검색을 여러 번 하는 조사 호출은 몇 분씩 걸립니다. 비스트리밍으로 보내면
+ *   응답이 올 때까지 연결을 잡고 있다가 기본 타임아웃(10분)에 걸립니다.
+ *   실제로 2026-09-20 자동 실행에서 조사 단계가 20분을 쓰고 "Request timed out" 으로 실패했습니다.
+ *   스트리밍은 응답이 조각으로 계속 흘러오므로 이 문제가 생기지 않습니다.
  */
 export async function runWithWebSearch(
   params: Anthropic.MessageCreateParamsNonStreaming,
@@ -67,7 +73,13 @@ export async function runWithWebSearch(
   let stopReason: string | null = null;
 
   for (let attempt = 0; attempt <= maxResumes; attempt++) {
-    const message = await anthropic.messages.create({ ...params, messages });
+    // maxRetries 를 1로 두어, 막혔을 때 타임아웃을 두 번 겪으며 시간을 통째로 날리지 않게 합니다.
+    // 실패하면 호출한 쪽이 대체 콘텐츠 경로로 넘어갑니다.
+    const stream = anthropic.messages.stream(
+      { ...params, messages },
+      { timeout: 600_000, maxRetries: 1 },
+    );
+    const message = await stream.finalMessage();
     usage = addUsage(usage, usageFromMessage(message.usage));
     stopReason = message.stop_reason ?? null;
 
