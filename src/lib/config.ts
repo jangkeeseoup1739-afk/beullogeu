@@ -87,19 +87,19 @@ export function tokenDaysLeft(issuedAt: string): number | null {
 /** 모델 설정을 한곳에서 관리합니다. 비용을 조절할 때 이 파일만 고치면 됩니다. */
 export const MODEL = {
   /** 조사 단계 — 최신 자료를 찾고 중요도를 판단 */
-  research: 'claude-opus-5',
+  research: 'claude-sonnet-5',
   /** 작성 단계 — Threads 글 작성 */
-  writer: 'claude-opus-5',
+  writer: 'claude-sonnet-5',
   /** 검증 단계 — 사실 대조. 판정만 하므로 effort를 낮게 씁니다 */
-  verifier: 'claude-opus-5',
+  verifier: 'claude-sonnet-5',
 } as const;
 
-/** 1M 토큰당 단가 (USD). 비용 추정에만 사용합니다. */
+/** 1M 토큰당 단가 (USD). 비용 추정에만 사용합니다. MODEL 을 바꾸면 여기도 함께 바꾸세요. */
 export const PRICING = {
-  input: 5,
-  output: 25,
-  cacheRead: 0.5,
-  cacheWrite: 6.25,
+  input: 2,
+  output: 10,
+  cacheRead: 0.2,
+  cacheWrite: 2.5,
   /** 웹 검색 1,000회당 $10 */
   webSearchPerCall: 0.01,
 } as const;

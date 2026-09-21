@@ -266,7 +266,7 @@ export async function runSlot(options: RunOptions): Promise<RunResult> {
     verification,
     dedupe,
     usage,
-    model: 'claude-opus-5',
+    model: 'claude-sonnet-5',
   };
 
   // 5) 게시 여부 판단
