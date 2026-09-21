@@ -1,0 +1,56 @@
+{
+  "id": "2026-09-21-morning-t3sjcd",
+  "createdAt": "2026-09-21T00:36:44.110Z",
+  "dateKey": "2026-09-21",
+  "slot": "morning",
+  "category": "전세",
+  "text": "성북구와 동대문구, 강북구에서도 전용 84㎡ 전세가 10억원 안팎에 거래되고 있습니다. 그동안 10억원대 전세는 마포·용산·성동 같은 한강벨트 이야기였는데, 올해 매매가가 크게 오른 지역으로 범위가 넓어진 셈입니다. 배경에는 서울 아파트 전셋값 흐름이 있습니다. 한국부동산원 주간 통계 기준 올해 누적 상승률은 9월 둘째 주까지 7.79%로, 지난해 같은 기간 1.16%의 약 4.7배이고 2015년 10.79% 이후 가장 높습니다. 9월 셋째 주에도 서울 전세는 0.17% 올라 전국 매매 상승률 0.04%와 차이가 컸습니다. 서울 안에서 상대적으로 저렴하던 전세 지대가 줄어들면 임차 수요가 경기·인천으로 이동할 압력도 커집니다. 관심 지역이 있다면 국토교통부 실거래가 공개시스템에서 같은 단지의 최근 전세 계약가를 직접 확인해 보시길 권합니다.",
+  "hook": "성북구와 동대문구, 강북구에서도 전용 84㎡ 전세가 10억원 안팎에 거래되고 있습니다.",
+  "topicKey": "전세|서울|국민평형 전세 10억 확산",
+  "keywords": [
+    "서울 전세",
+    "전용 84㎡",
+    "전세 10억",
+    "한국부동산원",
+    "전세가격 상승률"
+  ],
+  "sources": [
+    {
+      "title": "강북도 전세 10억 시대…'국평' 전셋값 상승세 지속 - SBS Biz",
+      "url": "https://biz.sbs.co.kr/article/20000335717",
+      "publisher": "biz.sbs.co.kr",
+      "publishedAt": "1 day ago"
+    },
+    {
+      "title": "https://www.dailian.co.kr/news/view/1692342/",
+      "url": "https://www.dailian.co.kr/news/view/1692342/",
+      "publisher": "dailian.co.kr"
+    }
+  ],
+  "status": "pending_approval",
+  "needsApproval": false,
+  "verification": {
+    "passed": true,
+    "ruleIssues": [],
+    "unsupportedSentences": [],
+    "politicalIssues": [],
+    "confidence": 0.95,
+    "notes": "10억 전세 확산 지역, 누적 상승률 7.79%·1.16%·4.7배·2015년 10.79%, 서울 전세 0.17%와 매매 0.04% 등 모든 수치가 조사 자료와 일치하며 나머지는 숫자 없는 일반적 전망·확인 권유 문장이다."
+  },
+  "dedupe": {
+    "isDuplicate": false,
+    "comparedCount": 1,
+    "maxSimilarity": 0.012,
+    "similarPostId": "2026-09-20-morning-47c9s9",
+    "attempts": 1
+  },
+  "usage": {
+    "inputTokens": 9623,
+    "outputTokens": 2185,
+    "cacheReadTokens": 2891,
+    "cacheWriteTokens": 2891,
+    "webSearchCount": 0,
+    "estimatedUsd": 0.1223
+  },
+  "model": "claude-opus-5"
+}
